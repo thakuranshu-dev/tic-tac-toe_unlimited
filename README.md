@@ -1,6 +1,6 @@
 <div align="center">
 	<h1>✨ Tic-Tac-Toe — The Unlimited Edition</h1>
-	<p><a href="https://unlimited-tic-tac-toe.netlify.app/" target="_blank">Live App</a></p>
+	<p><a href="https://unlimited-tic-tac-toe.netlify.app/" target="_blank" rel="noopener noreferrer">Try Now</a></p>
 </div>
 
 ## Introduction
@@ -15,12 +15,11 @@ Tic-Tac-Toe — The Unlimited Edition is a modern, feature-rich web version of t
 - Sound effects (toggleable)
 - Tracks stats: X wins, O wins, Draws (saved locally)
 - Responsive design for desktop and mobile
-- Accessible and keyboard-friendly
 
 ## TechStack
 
 - HTML5
-- CSS3 (custom properties, responsive design)
+- CSS3 (responsive design)
 - JavaScript (ES6+, no frameworks)
 
 ## How to Access
