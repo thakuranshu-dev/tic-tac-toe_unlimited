@@ -16,7 +16,7 @@ const load = (key, fallback) => {
     const v = localStorage.getItem(key); 
     return v? JSON.parse(v) : fallback 
   }catch{ 
-    return f 
+    return fallback 
   } 
 };
 const save = (key,value) => { 
@@ -27,32 +27,37 @@ const save = (key,value) => {
   } 
 };
 
-// ------- State -------
-const state = { // game state
+// ------- Game State -------
+const state = {
   board: empty(),
   xIsNext: true,
   winner: null,
-  history: [], // {board, xIsNext}
+  history: [],
   stats: load(LS.STATS, {X:0, O:0, draws:0}),
   theme: load(LS.THEME, 'light'),
-  mode: load(LS.MODE, 'cpu'), // 'cpu' | 'pvp'
+  mode: load(LS.MODE, 'cpu'),
   human: load(LS.HUMAN, 'X'),
   sfx: load(LS.SFX, true),
 };
 
-// ------- Audio -------
+// -------SFX Audio -------
 let audioCtx = null; // AudioContext for sound effects
 function beep(freq=440, dur=.08, type='square', gain=.04){
   if(!state.sfx) return;
-  if(!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)();
-  const o = audioCtx.createOscillator(); //sound generator
-  const g = audioCtx.createGain(); //volume control
-  o.type = type; o.frequency.value = freq; 
-  g.gain.value = gain; o.connect(g); 
-  g.connect(audioCtx.destination);
-  const t = audioCtx.currentTime; 
-  o.start(t); 
-  o.stop(t+dur);
+  try{
+    if(!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+    const oscillator = audioCtx.createOscillator(); //sound generator
+    const _gain = audioCtx.createGain(); //volume control
+    oscillator.type = type; 
+    oscillator.frequency.value = freq; 
+    _gain.gain.value = gain; oscillator.connect(_gain); 
+    _gain.connect(audioCtx.destination);
+    const _time = audioCtx.currentTime; 
+    oscillator.start(_time); 
+    oscillator.stop(_time+dur);
+  } catch (e) {
+    console.warn('Web Audio API is not supported in this browser', e);
+  }
 }
 
 // ------- Game logic -------
@@ -63,7 +68,7 @@ function winnerOf(board){
         player:board[a], 
         line:[a,b2,c]
       } 
-    }
+  }
   if(board.every(Boolean)) 
     return {
       player:'draw', 
@@ -71,11 +76,13 @@ function winnerOf(board){
     };
   return null;
 }
+
 function moves(board){ 
   const result=[]; 
-  for(let i=0;i<9;i++) 
+  for(let i=0;i<9;i++){
     if(!board[i]) 
       result.push(i); 
+  }
   return result; 
 }
 
@@ -102,6 +109,7 @@ function negamax(board, player, opp, alpha, beta, depth){
   }
   return best;
 }
+
 function bestMove(board, pc, human){
   const w = winnerOf(board); 
   if(w){ 
@@ -111,15 +119,7 @@ function bestMove(board, pc, human){
       return {score:-10}; 
     return {score:0} 
   }
-  // If CPU is X, let it make a random move at start
-  if(state.mode === 'cpu' && state.human === 'O' && currentPlayer() === 'X') {
-    const available = moves(state.board);
-    if (available.length > 0) {
-      const randIdx = available[Math.floor(Math.random() * available.length)];
-      console.log(`CPU places at ${randIdx}`);
-      return { score: 0, index: randIdx }; // Random move
-    }
-  }
+  
   let best={
     score:-Infinity, 
     index:null,
@@ -132,6 +132,17 @@ function bestMove(board, pc, human){
       best={score:s, index:i};
   }
   return best;
+}
+
+const cpuSymbol = () => (state.human === 'X' ? 'O' : 'X');
+
+function ensureCpuTurn(delay = 350){
+  if(!state.winner && state.mode==='cpu' && currentPlayer() !== state.human){
+    setTimeout(() => {
+      const mv = bestMove([...state.board], cpuSymbol(), state.human).index;
+      if(mv != null) place(mv, true);
+    }, delay);
+  }
 }
 
 // ------- DOM refs -------
@@ -166,8 +177,7 @@ function updateStatsUI(){
   draws.textContent=state.stats.draws ;
 }
 
-function render(){
-  // board
+function render(){// board
   cells.forEach((cell,idx)=>{
     const v = state.board[idx];
     cell.textContent = v ? v : '';
@@ -235,6 +245,7 @@ function place(idx, byCPU=false){
   }
   render();
   // queue CPU move if needed
+  /*
   if(!state.winner && state.mode==='cpu' && currentPlayer()!==state.human){
     setTimeout(()=>{
       const move = bestMove(
@@ -245,7 +256,8 @@ function place(idx, byCPU=false){
       if(move!=null) 
         place(move, true);
     }, 350);
-  }
+  } */
+  ensureCpuTurn(350);
 }
 
 function resetBoard(){ 
@@ -254,7 +266,8 @@ function resetBoard(){
   state.winner=null; 
   state.history=[]; 
   beep(240,.05,'sine',.03); 
-  render() 
+  render();
+  ensureCpuTurn(120);
 }
 
 function undo(){
@@ -278,7 +291,7 @@ function undo(){
   render();
 }
 
-// ------- Wire up -------
+// ------- Wire up EventListeners-------
 cells.forEach(
   _cell=> _cell.addEventListener(
     'click', e => place(
@@ -300,21 +313,14 @@ selMode.addEventListener('change', e=>{
   state.mode = e.target.value; 
   save(LS.MODE, state.mode); 
   resetBoard(); 
-  render(); 
 });
+
 btnPlayX.addEventListener('click', ()=>{ 
   state.human='X'; 
   save(LS.HUMAN,'X'); 
   resetBoard(); 
-  // If CPU is X, let it make a random move at start
-  if(state.mode === 'cpu' && state.human === 'O' && currentPlayer() === 'X') {
-    const available = moves(state.board);
-    if (available.length > 0) {
-      const randIdx = available[Math.floor(Math.random() * available.length)];
-      place(randIdx);
-    }
-  }
 });
+
 btnPlayO.addEventListener('click', ()=>{ 
   state.human='O'; 
   save(LS.HUMAN,'O'); 
@@ -322,18 +328,11 @@ btnPlayO.addEventListener('click', ()=>{
 });
 
 selTheme.addEventListener('change', e=> setTheme(e.target.value));
+
 resetStats.addEventListener('click', ()=>{ 
   state.stats={X:0,O:0,draws:0}; 
   save(LS.STATS,state.stats); 
   updateStatsUI(); 
-
-  if(state.mode === 'cpu' && state.human === 'O' && currentPlayer() === 'X') {
-    const available = moves(state.board);
-    if (available.length === 0) {
-      const randIdx = available[Math.floor(Math.random() * available.length)];
-      place(randIdx, true);
-    }
-  }
 });
 
 // ------- Init -------
@@ -353,3 +352,4 @@ if(state.human==='X'){
 
 updateStatsUI();
 render();
+ensureCpuTurn(120);
