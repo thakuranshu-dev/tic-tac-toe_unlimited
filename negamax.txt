@@ -1,0 +1,20 @@
+The negamax function is an implementation of the Negamax algorithm, commonly used for AI in two-player games like tic-tac-toe. Here’s what it does:
+
+Parameters:
+
+b: current board state
+player: current player symbol
+opp: opponent symbol
+a, beta: alpha-beta pruning bounds
+depth: recursion depth
+Checks for a winner:
+
+If the game is over, returns a score based on who won and how deep in the recursion (earlier wins are better).
+Searches all possible moves:
+
+For each empty cell, simulates the move for the current player.
+Recursively calls itself, swapping player and opponent, and inverting the score.
+Uses alpha-beta pruning to skip unnecessary branches.
+Returns the best score found for the current player.
+
+This function helps the AI choose the optimal move by evaluating all possible outcomes.

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Tic-Tac-Toe — The Unlimited Edition</title>
+  <link rel="stylesheet" href="./src/styles.css" type="text/css" />
+</head>
+<body>
+  <div class="container" id="app" data-theme="light">
+    <header>
+      <div>
+        <h1>✨ Tic-Tac-Toe</h1>
+        <span id="tue_txt" class="mobile-below-title" style="color:var(--accent)">The Unlimited Edition</span>
+        <div class="muted">Play with a friend or a perfect CPU. </div>
+      </div>
+      <div class="controls">
+        <button class="btn" id="newMatch">↻ New match</button>
+        <button class="btn outline" id="undo">⟲ Undo</button>
+        <button class="btn outline" id="toggleSfx">🔊 SFX</button>
+      </div>
+    </header>
+
+    <div class="grid">
+      <aside class="card" aria-label="Game settings">
+        <h2>Game Settings</h2>
+        <div style="display:grid; gap:10px">
+          <label>
+            <div class="muted" id="mode_lbl">Mode</div>
+            <select id="mode">
+              <option value="cpu">Single‑player vs CPU</option>
+              <option value="pvp">Two‑player (same device)</option>
+            </select>
+          </label>
+
+          <div id="whoWrap">
+            <div class="muted" id="player_choice">You play as</div>
+            <div style="display:flex; gap:8px">
+              <button class="btn" id="playX">X</button>
+              <button class="btn outline" id="playO">O</button>
+            </div>
+          </div>
+
+          <label>
+            <div class="muted" id="theme_lbl">Theme</div>
+            <select id="theme">
+              <option value="light">Light</option>
+              <option value="dark">Dark</option>
+              <option value="ocean">Ocean</option>
+              <option value="sunset">Sunset</option>
+            </select>
+          </label>
+
+          <div>
+            <div class="muted" id="stats_lbl">Stats (saved)</div>
+            <div class="stats">
+              <div class="stat"><div class="label">X wins</div><div class="value" id="xWins">0</div></div>
+              <div class="stat"><div class="label">O wins</div><div class="value" id="oWins">0</div></div>
+              <div class="stat"><div class="label">Draws</div><div class="value" id="draws">0</div></div>
+            </div>
+            <div style="display:flex; gap:8px; margin-top:8px">
+              <button class="btn outline" id="resetStats">Reset stats</button>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <main class="board-wrap">
+        <div class="status" id="status" aria-live="polite">X's turn</div>
+        <div class="sub muted" id="substatus"></div>
+        <div class="board" role="grid" aria-label="Tic tac toe board">
+          <button class="cell" role="gridcell" data-idx="0" aria-label="Cell 1"></button>
+          <button class="cell" role="gridcell" data-idx="1" aria-label="Cell 2"></button>
+          <button class="cell" role="gridcell" data-idx="2" aria-label="Cell 3"></button>
+          <button class="cell" role="gridcell" data-idx="3" aria-label="Cell 4"></button>
+          <button class="cell" role="gridcell" data-idx="4" aria-label="Cell 5"></button>
+          <button class="cell" role="gridcell" data-idx="5" aria-label="Cell 6"></button>
+          <button class="cell" role="gridcell" data-idx="6" aria-label="Cell 7"></button>
+          <button class="cell" role="gridcell" data-idx="7" aria-label="Cell 8"></button>
+          <button class="cell" role="gridcell" data-idx="8" aria-label="Cell 9"></button>
+        </div>
+        <div style="display:flex; gap:8px">
+          <button class="btn" id="playAgain" style="display:none">Play again</button>
+          <button class="btn outline" id="undo2">Undo</button>
+        </div>
+      </main>
+    </div>
+
+    <footer>Built with ❤️ by Anshu Kumar Thakur<br>
+    <a href="https://github.com/thakuranshu-dev" target="_blank" rel="noopener noreferrer">GitHub |</a>
+    <a href="https://www.linkedin.com/in/anshu-kumar-thakur-2bb8a325b" target="_blank" rel="noopener noreferrer">LinkedIn |</a>
+    <a href="mailto:thakuranshu.art@gmail.com" target="_blank" rel="noopener noreferrer">Contact</a>
+    <br>
+    </footer>
+  </div>
+
+  <script src="./src/app.js" type="module"></script>
+</body>
+</html>
